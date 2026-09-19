@@ -9,6 +9,7 @@ public class BoardScript : MonoBehaviour
     private GameObject[] pieces;
     private Camera cam;
     private bool isOver = false;
+    private bool isCoroutineRunning = false;
     private int skips;
     private int[] prevMove;
     private int mode; //0 is twoPlayer, 1 is onePlayer
@@ -38,7 +39,7 @@ public class BoardScript : MonoBehaviour
 
     void Update()
     {
-        if(isOver)
+        if(isOver || isCoroutineRunning)
         {
             return;
         }
@@ -48,6 +49,7 @@ public class BoardScript : MonoBehaviour
 
     IEnumerator doMove()
     {
+        isCoroutineRunning = true;
         if(!isOver && board.getLegalMoves().Count > 0)
         {
             skips = 0;
@@ -75,6 +77,7 @@ public class BoardScript : MonoBehaviour
             isOver = true;
         }
 
+        isCoroutineRunning = false;
         yield return null;
     }
 
@@ -107,17 +110,18 @@ public class BoardScript : MonoBehaviour
         else
         {
             TreeSearch.setRoot(new Node(board));
-            yield return computerThink();
+            yield return StartCoroutine(computerThink());
             board.makeMove(prevMove);
         }   
 
         yield return null;
     }
 
-    void computerThink()
+    IEnumerator computerThink()
     {
         Node nextPos = TreeSearch.analyze(2);
         prevMove = findMovePlayed(nextPos.getPosition());
+        yield return null;
     }
 
     int[] findMovePlayed(Board newPosition)
