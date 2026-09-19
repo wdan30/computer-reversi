@@ -51,7 +51,7 @@ public class BoardScript : MonoBehaviour
         if(!isOver && board.getLegalMoves().Count > 0)
         {
             skips = 0;
-            StartCoroutine(doTurn());
+            yield return StartCoroutine(doTurn());
             setColors();
         }
         else if(!isOver && skips == 0)
@@ -82,7 +82,8 @@ public class BoardScript : MonoBehaviour
     {
         if(mode == 0 || board.getCurrent() != computerColour)
         {
-            while(true)
+            bool moveMade = false;
+            while(!moveMade)
             {
                 if(Input.GetMouseButtonDown(0))
                 {
@@ -97,8 +98,7 @@ public class BoardScript : MonoBehaviour
                     }
 
                     board.makeMove(x, y);
-
-                    yield break;
+                    moveMade = true;
                 }
 
                 yield return null;
@@ -107,20 +107,17 @@ public class BoardScript : MonoBehaviour
         else
         {
             TreeSearch.setRoot(new Node(board));
-
             yield return computerThink();
-
             board.makeMove(prevMove);
         }   
 
         yield return null;
     }
 
-    object computerThink()
+    void computerThink()
     {
         Node nextPos = TreeSearch.analyze(2);
         prevMove = findMovePlayed(nextPos.getPosition());
-        return null;
     }
 
     int[] findMovePlayed(Board newPosition)
