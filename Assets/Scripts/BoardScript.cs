@@ -88,20 +88,36 @@ public class BoardScript : MonoBehaviour
             bool moveMade = false;
             while(!moveMade)
             {
-                if(Input.GetMouseButtonDown(0))
+                // Ensure we only process clicks if it is still the player's turn
+                if(board.getCurrent() != computerColour && Input.GetMouseButtonDown(0))
                 {
                     Vector3 pos = cam.ScreenToWorldPoint(Input.mousePosition);
                     int x = (int) Math.Floor(pos.y) * -1 + 3;
                     int y = (int) Math.Floor(pos.x) + 4;
-                    prevMove = new int[] {x, y};
-
-                    if(board.getPieceAt(x, y) == 3)
+                    
+                    // Validate move exists before making it to prevent exceptions
+                    bool isValidMove = false;
+                    foreach(int[] move in board.getLegalMoves())
                     {
-                        hudController.setTurnText(computerColour);
+                        if(move[0] == x && move[1] == y)
+                        {
+                            isValidMove = true;
+                            break;
+                        }
                     }
 
-                    board.makeMove(x, y);
-                    moveMade = true;
+                    if(isValidMove)
+                    {
+                        prevMove = new int[] {x, y};
+
+                        if(board.getPieceAt(x, y) == 3)
+                        {
+                            hudController.setTurnText(computerColour);
+                        }
+
+                        board.makeMove(x, y);
+                        moveMade = true;
+                    }
                 }
 
                 yield return null;
@@ -109,7 +125,6 @@ public class BoardScript : MonoBehaviour
         }
         else
         {
-            TreeSearch.setRoot(new Node(board));
             yield return StartCoroutine(computerThink());
             board.makeMove(prevMove);
         }   
