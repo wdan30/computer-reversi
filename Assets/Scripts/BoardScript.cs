@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BoardScript : MonoBehaviour
 {
@@ -75,10 +76,17 @@ public class BoardScript : MonoBehaviour
         {
             hudController.setWinText(board.getResult());
             isOver = true;
+            StartCoroutine(ResetGameAfterDelay(3.0f));
         }
 
         isCoroutineRunning = false;
         yield return null;
+    }
+
+    IEnumerator ResetGameAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name); 
     }
 
     IEnumerator doTurn()
