@@ -119,8 +119,21 @@ public class BoardScript : MonoBehaviour
 
     IEnumerator computerThink()
     {
-        Node nextPos = TreeSearch.analyze(2);
-        prevMove = findMovePlayed(nextPos.getPosition());
+        TreeSearch.setRoot(new Node(board));
+        
+        // Run iterations over multiple frames to avoid blocking the main thread
+        int totalIterations = 2000; // Total MCTS iterations
+        int iterationsPerFrame = TreeSearch.GetIterationsPerFrame();
+        
+        for (int i = 0; i < totalIterations; i += iterationsPerFrame)
+        {
+            TreeSearch.analyzeIterative(iterationsPerFrame);
+            yield return null; // Wait for next frame
+        }
+
+        // Get the result after iterations are done
+        // Note: TreeSearch needs a method to get the result node now
+        prevMove = findMovePlayed(TreeSearch.getBestNode().getPosition());
         yield return null;
     }
 

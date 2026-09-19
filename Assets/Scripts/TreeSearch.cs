@@ -109,21 +109,26 @@ public class TreeSearch
         visited.Clear();
     }
 
-    public static Node analyze(int time)
+    public static int GetIterationsPerFrame()
     {
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
+        return 100; // Adjust this value to balance performance and responsiveness
+    }
 
-        while(sw.Elapsed.TotalSeconds < time)
+    // Changed to be non-blocking and iterative
+    public static void analyzeIterative(int iterations)
+    {
+        for (int i = 0; i < iterations; i++)
         {
+            if (root == null) break;
+
             Node leaf = selection();
             leaf = expand(leaf);
             backpropagate(simulate(leaf));
         }
-
-        sw.Stop();
-        
-        if(root.getBestChild() != null)
+    }
+    public static Node getBestNode()
+    {
+        if (root.getBestChild() != null)
         {
             return root.getBestChild();
         }
@@ -132,6 +137,8 @@ public class TreeSearch
             throw new Exception("No legal moves found.");
         }
     }
+
+
 
     public static void updateRoot(int[] move)
     {
